@@ -2,11 +2,26 @@ import axios from "axios";
 // import MOCK_URL from "../../constants/mock_server_url";
 import { server_api } from "../config/env.config";
 import api from "./axios";
+import { requestDemoApi } from "./demo.api";
+import { isDemoMode } from "../config/demo.config";
 
 const serverCrash =
   "Wow the server MAY have crashed...be a hero, and tell Hailey, Jason or Sean ASAP. Please also remember the steps leading to this.";
 
 const updateProfile = (user_obj, cb) => {
+  if (isDemoMode) {
+    try {
+      cb(null, requestDemoApi({
+        method: "patch",
+        url: `${server_api}user/update`,
+        data: user_obj,
+      }));
+    } catch (error) {
+      cb(error);
+    }
+    return;
+  }
+
   axios
     .patch(`${server_api}user/update`, user_obj, {
       withCredentials: true,

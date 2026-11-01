@@ -12,6 +12,7 @@ import { globalContext } from "../store/globalContext";
 import { requireAuthen } from "../api/require.authen";
 import ChatBox from "../comps/ChatComps/ChatBox";
 import LoadingSpinner from "../UI/LoadingSpinner";
+import { demoRoommates, demoUser, isDemoMode } from "../config/demo.config";
 
 const MainCont = styled.div`
   display: flex;
@@ -217,6 +218,15 @@ export default function Chat(props) {
 }
 
 export const getServerSideProps = async (ctx) => {
+  if (isDemoMode) {
+    return {
+      props: {
+        auth: { user: demoUser },
+        chatters: demoRoommates,
+      },
+    };
+  }
+
   let authProp = await requireAuthen(ctx, true);
 
   if (!authProp.hasOwnProperty("user")) {

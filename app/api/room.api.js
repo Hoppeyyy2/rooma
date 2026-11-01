@@ -1,11 +1,26 @@
 import axios from "axios";
 import { server_api } from "../config/env.config";
 import api from "./axios";
+import { requestDemoApi } from "./demo.api";
+import { isDemoMode } from "../config/demo.config";
 
 const serverCrash =
   "Wow the server MAY have crashed...be a hero, and tell Hailey, Jason or Sean ASAP. Please also remember the steps leading to this.";
 
 const createRoom = (room_obj, cb) => {
+  if (isDemoMode) {
+    try {
+      cb(null, requestDemoApi({
+        method: "post",
+        url: `${server_api}room/create`,
+        data: room_obj,
+      }));
+    } catch (error) {
+      cb(error);
+    }
+    return;
+  }
+
   axios
     .post(`${server_api}room/create`, room_obj, {
       withCredentials: true,
@@ -32,6 +47,18 @@ const createRoom = (room_obj, cb) => {
 };
 
 const getCode = async (cb) => {
+  if (isDemoMode) {
+    try {
+      cb(null, requestDemoApi({
+        method: "get",
+        url: `${server_api}room/invcode`,
+      }));
+    } catch (error) {
+      cb(error);
+    }
+    return;
+  }
+
   axios
     .get(`${server_api}room/invcode`, {
       withCredentials: true,
@@ -102,6 +129,19 @@ const getRoomates = async (ctx) => {
 };
 
 const leaveRoom = async (cb) => {
+  if (isDemoMode) {
+    try {
+      cb(null, requestDemoApi({
+        method: "patch",
+        url: `${server_api}room/leave`,
+        data: {},
+      }));
+    } catch (error) {
+      cb(error);
+    }
+    return;
+  }
+
   axios
     .patch(
       `${server_api}room/leave`,
@@ -132,6 +172,19 @@ const leaveRoom = async (cb) => {
 };
 
 const joinRoom = async (room_obj, cb) => {
+  if (isDemoMode) {
+    try {
+      cb(null, requestDemoApi({
+        method: "patch",
+        url: `${server_api}room/join`,
+        data: room_obj,
+      }));
+    } catch (error) {
+      cb(error);
+    }
+    return;
+  }
+
   axios
     .patch(`${server_api}room/join`, room_obj, {
       withCredentials: true,

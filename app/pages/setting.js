@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import EditProfile from "../comps/EditProfile";
 import { requireAuthen } from "../api/require.authen";
 import LoadingSpinner from "../UI/LoadingSpinner";
+import { demoUser, isDemoMode } from "../config/demo.config";
 
 const Cont = styled.div`
   display: flex;
@@ -247,6 +248,10 @@ export default function Home(props) {
 }
 
 export const getServerSideProps = async (context) => {
+  if (isDemoMode) {
+    return { props: { auth: { user: demoUser } } };
+  }
+
   // return requireAuthen(context);
   let authProp = await requireAuthen(context, true);
 

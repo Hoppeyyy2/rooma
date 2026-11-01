@@ -9,6 +9,13 @@ import CalEventMerged from "../comps/CalEventMerged";
 import { getRoomates } from "../api/room.api";
 import LoadingSpinner from "../UI/LoadingSpinner";
 import { globalContext } from "../store/globalContext";
+import {
+  demoRoommates,
+  demoUser,
+  isDemoMode,
+} from "../config/demo.config";
+import api from "../api/axios";
+import { demoUpdateEvent } from "../api/demo.api";
 
 const MainCont = styled.div`
   display: flex;
@@ -45,13 +52,33 @@ export default function Home(props) {
     setCurrentExpandNav,
     setLoadingSpinner,
   } = useContext(globalContext);
+  const [roommateList, setRoommateList] = useState(props.roomates);
 
   useEffect(() => {
     console.log("vvvvvvvvvvvvvvvvvvv");
     console.log(props.auth);
     console.log(props.auth.user);
     setCurrentUser(props.auth.user);
-  });
+  }, [props.auth, setCurrentUser]);
+
+  useEffect(() => {
+    if (!isDemoMode) {
+      return;
+    }
+
+    const refreshRoommates = () => {
+      api
+        .get("/user/roommates")
+        .then((response) => setRoommateList(response.data.roommates))
+        .catch((error) =>
+          console.error("Could not load demo roommates.", error)
+        );
+    };
+
+    refreshRoommates();
+    window.addEventListener(demoUpdateEvent, refreshRoommates);
+    return () => window.removeEventListener(demoUpdateEvent, refreshRoommates);
+  }, []);
 
   // detect button clicked or not
   const [buttonstate1, setButtonState1] = useState(0);
@@ -145,7 +172,7 @@ export default function Home(props) {
             <Reminder
               // heading need to change when the user click the calendar and change the date for reminder
               heading="Today"
-              roomates={props.roomates}
+              roomates={roommateList}
               // def_visibility will be visible when the user didn't schedule anything on the date. if there is a reminder, it should be hidden
               def_visibility="hidden"
               // checked is for completed radio button. defalt set as checked, but once the user want to bring the reminder back to active reminder, the button should be unclicked and the reminder cont will be deleted in completed reminder and bring it to the active reminder comp
@@ -179,6 +206,15 @@ export default function Home(props) {
 }
 
 export const getServerSideProps = async (context) => {
+  if (isDemoMode) {
+    return {
+      props: {
+        auth: { user: demoUser },
+        roomates: demoRoommates,
+      },
+    };
+  }
+
   // return requireAuthen(context);
   let authProp = await requireAuthen(context, true);
 

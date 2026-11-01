@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { getRoomates } from "../api/room.api";
 import LoadingSpinner from "../UI/LoadingSpinner";
+import { demoRoommates, isDemoMode } from "../config/demo.config";
 
 const MainCont = styled.div`
   display: flex;
@@ -266,6 +267,10 @@ export default function Members(props) {
 // };
 
 export const getServerSideProps = (ctx) => {
+  if (isDemoMode) {
+    return { props: { users: demoRoommates } };
+  }
+
   // return requireAuthen(context);
   return getRoomates(ctx);
 };

@@ -2,6 +2,8 @@ import api from "./axios";
 import axios from "axios";
 import router from "next/router";
 import { server_api } from "../config/env.config";
+import { requestDemoApi } from "./demo.api";
+import { isDemoMode } from "../config/demo.config";
 
 export const requireAuthen = async (ctx, RoomRedirect = false) => {
 
@@ -76,6 +78,19 @@ export const requireAuthen = async (ctx, RoomRedirect = false) => {
 
 
 export const requireAuthenCompo = async (cb) => {
+  if (isDemoMode) {
+    try {
+      const response = requestDemoApi({
+        method: "get",
+        url: `${server_api}auth/authenticate`,
+      });
+      cb(null, response.data.user);
+    } catch (error) {
+      cb(error);
+    }
+    return;
+  }
+
   console.log('requireAuthenCompo requireAuthenCompo');
   await axios
     .get(`${server_api}auth/authenticate`, {

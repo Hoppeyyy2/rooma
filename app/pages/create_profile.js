@@ -5,6 +5,7 @@ import Tutorial from "../comps/Tutorial";
 import { useState } from "react";
 import NewProfile from "../comps/NewProfile";
 import { requireAuthen } from "../api/require.authen";
+import { demoUser, isDemoMode } from "../config/demo.config";
 
 const MainCont = styled.div`
   display: flex;
@@ -60,6 +61,9 @@ export default function CreateProfile(props) {
 }
 
 export const getServerSideProps = async (context) => {
+  if (isDemoMode) {
+    return { props: { auth: { user: demoUser } } };
+  }
 
   let authProp = await requireAuthen(context, false);
   if (!authProp.hasOwnProperty("user")) {
